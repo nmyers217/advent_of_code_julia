@@ -61,8 +61,10 @@ function do_operation!(machine::IntCodeMachine)
         return
     elseif opcode == 1
         write!(read!(modes[1]) + read!(modes[2]))
+        machine.ip += 1
     elseif opcode == 2
         write!(read!(modes[1]) * read!(modes[2]))
+        machine.ip += 1
     elseif opcode == 3
         if length(machine.stdin) == 0
             # We have to halt until we get more input
@@ -70,13 +72,40 @@ function do_operation!(machine::IntCodeMachine)
             return
         end
         write!(popfirst!(machine.stdin))
+        machine.ip += 1
     elseif opcode == 4
         push!(machine.stdout, read!(modes[1]))
+        machine.ip += 1
+    elseif opcode == 5
+        if (read!(modes[1]) != 0)
+            machine.ip = read!(modes[2]) + 1
+        else
+            machine.ip += 2
+        end
+    elseif opcode == 6
+        if (read!(modes[1]) == 0)
+            machine.ip = read!(modes[2]) + 1
+        else
+            machine.ip += 2
+        end
+    elseif opcode == 7
+        if (read!(modes[1]) < read!(modes[2]))
+            write!(1)
+        else
+            write!(0)
+        end
+        machine.ip += 1
+    elseif opcode == 8
+        if (read!(modes[1]) == read!(modes[2]))
+            write!(1)
+        else
+            write!(0)
+        end
+        machine.ip += 1
     else
         error("Invalid opcode $opcode at address $(machine.ip)")
     end
 
-    machine.ip += 1
 end
 
 function advance_machine!(machine::IntCodeMachine)
@@ -102,7 +131,41 @@ function solve()
         @test all(n -> n == 0, m.stdout[1:(end - 1)])
 
         part_one = m.stdout[end]
+
+        m = IntCodeMachine(program)
+        push!(m.stdin, 5)
+        advance_machine!(m)
+
+        part_two = m.stdout[end]
+
+        part_one, part_two
+    end
+end
+
+function run_tests()
+    run(prog, inputs) = begin
+        m = IntCodeMachine(prog)
+        push!(m.stdin, inputs...)
+        advance_machine!(m)
+        m.stdout
+    end
+    @testset "IntCodeMachine" begin
+        @test run([3,9,8,9,10,9,4,9,99,-1,8], [8]) == [1]
+        @test run([3,9,8,9,10,9,4,9,99,-1,8], [9]) == [0]
+        @test run([3,9,7,9,10,9,4,9,99,-1,8], [7]) == [1]
+        @test run([3,9,7,9,10,9,4,9,99,-1,8], [8]) == [0]
+
+        @test run([3,3,1108,-1,8,3,4,3,99], [8]) == [1]
+        @test run([3,3,1108,-1,8,3,4,3,99], [9]) == [0]
+        @test run([3,3,1107,-1,8,3,4,3,99], [7]) == [1]
+        @test run([3,3,1107,-1,8,3,4,3,99], [8]) == [0]
+
+        @test run([3,12,6,12,15,1,13,14,13,4,13,99,-1,0,1,9], [0]) == [0]
+        @test run([3,12,6,12,15,1,13,14,13,4,13,99,-1,0,1,9], [5]) == [1]
+        @test run([3,3,1105,-1,9,1101,0,0,12,4,12,99,1], [0]) == [0]
+        @test run([3,3,1105,-1,9,1101,0,0,12,4,12,99,1], [5]) == [1]
     end
 end
 
 solve()
+
