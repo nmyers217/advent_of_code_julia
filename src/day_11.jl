@@ -157,14 +157,13 @@ function paint_hull(prog, start_color=0)::Dict{Array{Int,1},Int}
         # Rotate and advance a square
         dir_delta = popfirst!(m.stdout)
         (x, y) = dir
-        if dir_delta == 0
+        pos += if dir_delta == 0
             dir = [y, -x]
         elseif dir_delta == 1
             dir = [-y, x]
         else
             error("invalid direction $dir_delta")
         end
-        pos += dir
     end
 
     result
