@@ -30,7 +30,7 @@ mutable struct IntCodeMachine
         new(padded_mem, 1, 0, [], [], false, false)
     end
     IntCodeMachine(program::String) = begin
-        new([
+        IntCodeMachine([
             parse(Int, x) for x in split(strip(program), ",")
         ])
     end
