@@ -68,7 +68,7 @@ function fuel_ore_cost(graph::Graph, fuel_amt::Int)
 end
 
 function solve()
-    input = read("res/day_14.txt", String)
+    input = read("2019/res/day_14.txt", String)
 
     graph = parse_chemicals_graph(input)
 

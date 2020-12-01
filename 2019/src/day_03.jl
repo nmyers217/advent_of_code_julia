@@ -1,5 +1,5 @@
 function solve()
-    wires = map(collect(eachline("res/day_03.txt"))) do line
+    wires = map(collect(eachline("2019/res/day_03.txt"))) do line
         map(split(strip(line), ",")) do move
             dir, mag = move[1], move[2:end]
 

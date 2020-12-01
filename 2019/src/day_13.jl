@@ -33,7 +33,7 @@ function draw(grid::Array{Int,2}, score::Int)
 end
 
 function solve()
-    input = read("res/day_13.txt", String)
+    input = read("2019/res/day_13.txt", String)
 
     m = IntCodeMachine(input)
 

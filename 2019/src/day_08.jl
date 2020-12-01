@@ -12,7 +12,7 @@ function render_image(image, width, height)
 end
 
 function solve()
-    input = read("res/day_08.txt", String)
+    input = read("2019/res/day_08.txt", String)
     image_data = [parse(Int, x) for x in split(input, "")]
 
     width, height = 25, 6

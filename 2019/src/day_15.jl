@@ -157,7 +157,7 @@ function breadth_first_search(grid::Grid)
 end
 
 function solve()
-    input = read("res/day_15.txt", String)
+    input = read("2019/res/day_15.txt", String)
     grid = Grid(explore_cells!(IntCodeMachine(input)))
     show(grid)
     part_one = breadth_first_search(grid)

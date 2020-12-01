@@ -53,7 +53,7 @@ function render_hull(colors::Dict{Array{Int,1},Int})
 end
 
 function solve()
-    input = read("res/day_11.txt", String)
+    input = read("2019/res/day_11.txt", String)
     program = [
         parse(Int, x) for x in split(strip(input), ",")
     ]

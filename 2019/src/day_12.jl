@@ -57,7 +57,7 @@ function axis_equal(moons_a::Array{Moon,1}, moons_b::Array{Moon,1}, axis::Int)
 end
 
 function solve()
-    input = read("res/day_12.txt", String)
+    input = read("2019/res/day_12.txt", String)
 
     part_one = begin
         moons = parse_moons(input)

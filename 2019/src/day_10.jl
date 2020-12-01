@@ -117,7 +117,7 @@ function laser(asteroids::Set{Vec}, laser_pos::Vec)::Array{Vec,1}
 end
 
 function solve()
-    input = read("res/day_10.txt", String)
+    input = read("2019/res/day_10.txt", String)
 
     asteroids = find_asteroids(input)
    

@@ -29,7 +29,7 @@ function run_program!(program::Array{Int,1})
 end
 
 function solve()
-    open("res/day_02.txt") do input_file
+    open("2019/res/day_02.txt") do input_file
         program = [
             parse(Int, x) for x in split(strip(read(input_file, String)), ",")
         ]

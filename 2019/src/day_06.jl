@@ -38,7 +38,7 @@ function num_transfers_between(graph, start, dest)
 end
 
 function solve()
-    input = read("res/day_06.txt", String)
+    input = read("2019/res/day_06.txt", String)
     graph = parse_graph(input)
 
     part_one = orbital_checksum(graph)

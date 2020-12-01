@@ -8,7 +8,7 @@ calc_fuel_recur(mass) = begin
 end
 
 function solve()
-    open("res/day_01.txt") do input_file
+    open("2019/res/day_01.txt") do input_file
         total_fuel = 0
         total_fuel_recur = 0
 

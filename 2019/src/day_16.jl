@@ -43,7 +43,7 @@ function FFT(base_pattern::Vector{Int}, signal::Vector{Int}, phases::Int, offset
 end
 
 function solve()
-    input = read("res/day_16.txt", String)
+    input = read("2019/res/day_16.txt", String)
 
     signal = parse.(Int, split(strip(input), ""))
     base_pattern = [0, 1, 0, -1]
