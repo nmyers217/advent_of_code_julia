@@ -13,13 +13,13 @@ end
 
 function isvalid_old(password::Password)
     chars = [s[1] for s in split(password.val, "")]
-    matches = count(c -> c == password.char, chars)
+    matches = count(==(password.char), chars)
     password.min <= matches <= password.max
 end
 
 function isvalid_new(password::Password)
     chars = [password.val[password.min], password.val[password.max]]
-    count(c -> c == password.char, chars) == 1
+    count(==(password.char), chars) == 1
 end
 
 function solve()
