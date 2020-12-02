@@ -1,25 +1,25 @@
 struct Password
     min::Int
     max::Int
-    char::String
+    char::Char
     val::String
 
     Password(str::AbstractString) = begin
         regex = r"(?<min>\S+)-(?<max>\S+) (?<char>\S+): (?<val>\S+)"
         (min, max, char, val) = match(regex, str).captures
-        new(parse(Int, min), parse(Int, max), char, val)
+        new(parse(Int, min), parse(Int, max), char[1], val)
     end
 end
 
 function isvalid_old(password::Password)
-    chars = split(password.val, "")
+    chars = [s[1] for s in split(password.val, "")]
     matches = count(c -> c == password.char, chars)
     password.min <= matches <= password.max
 end
 
 function isvalid_new(password::Password)
-    (a, b) = (password.val[password.min], password.val[password.max])
-    count(c -> c == password.char, split("$a$b", "")) == 1
+    chars = [password.val[password.min], password.val[password.max]]
+    count(c -> c == password.char, chars) == 1
 end
 
 function solve()
