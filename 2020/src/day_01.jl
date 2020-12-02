@@ -1,5 +1,3 @@
-using Test
-
 function part_one(entries)
     for a in entries
         for b in entries
