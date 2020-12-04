@@ -13,7 +13,7 @@ struct Passport
     end
 end
 
-function parse_input(input::String)::Any
+function parse_input(input::String)::Vector{Passport}
     lines = split(strip(input), "\n\n")
     entries = [join(split(line, "\n"), " ") for line in lines]
     map(Passport, entries)
