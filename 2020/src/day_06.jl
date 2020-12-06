@@ -3,8 +3,9 @@ function solve()
     groups = map(split(input, "\n\n")) do group
         [split(person, "") for person in split(group, "\n")]
     end
-    part_one = sum(map(g -> length(union(g...)), groups))
-    part_two = sum(map(g -> length(intersect(g...)), groups))
+    (part_one, part_two) = map([union, intersect]) do fn
+        sum([(length ∘ fn)(g...) for g in groups])
+    end
     (part_one, part_two)
 end
 
