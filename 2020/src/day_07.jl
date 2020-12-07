@@ -47,8 +47,8 @@ function bfs(bag_graph::Dict{Any}, start::String="shiny gold")
 end
 
 function traverse(bag_graph::Dict{Any}, start::String="shiny gold")
-    queue = [(1, "shiny gold")]
-    sum = 0
+    queue = [(1, start)]
+    sum = -1
     while !isempty(queue)
         (n, bag) = popfirst!(queue)
         sum += n
@@ -56,7 +56,7 @@ function traverse(bag_graph::Dict{Any}, start::String="shiny gold")
             push!(queue, (n * amount, next_bag))
         end
     end
-    sum - 1
+    sum
 end
 
 function solve()
