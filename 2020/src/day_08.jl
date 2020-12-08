@@ -27,10 +27,6 @@ mutable struct BootProgram
         instructions = [Instruction(line) for line in split(strip(str), "\n")]
         new(0, 1, Set(), instructions)
     end
-
-    BootProgram(instructions::Vector{Instruction}) = begin
-        new(0, 1, Set(), deepcopy(instructions))
-    end
 end
 
 function run!(bp::BootProgram)
@@ -61,6 +57,8 @@ function fix_program(bp::BootProgram)
             bp_cpy.instructions[i] = Instruction("jmp", ins.val)
         elseif ins.name == "jmp"
             bp_cpy.instructions[i] = Instruction("nop", ins.val)
+        else
+            continue
         end
 
         run!(bp_cpy)
