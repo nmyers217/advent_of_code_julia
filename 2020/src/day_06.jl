@@ -9,4 +9,4 @@ function solve()
     (part_one, part_two)
 end
 
-solve()
+@time solve()
