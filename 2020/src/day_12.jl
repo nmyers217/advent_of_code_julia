@@ -60,12 +60,12 @@ function solve()
     part_one = begin
         ship = Ship()
         travel!(ship, directions)
-        sum([abs(n) for n in ship.pos])
+        sum(abs.(ship.pos))
     end
     part_two = begin
         ship = Ship()
         travel!(ship, directions; waypoint=true)
-        sum([abs(n) for n in ship.pos])
+        sum(abs.(ship.pos))
     end
     part_one, part_two
 end
