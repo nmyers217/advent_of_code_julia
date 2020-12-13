@@ -23,7 +23,7 @@ function solve()
     end
 
     part_two = begin
-        # Use chinese remainer theorem
+        # Use chinese remainder theorem
         p = BigInt(prod(s.busses))
         s = sum(ai * invmod(p ÷ ni, ni) * p ÷ ni for (ni, ai) in zip(s.busses, -s.offsets))
         mod(s, p)
