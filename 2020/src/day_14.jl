@@ -17,11 +17,9 @@ mutable struct Program
     memory::Dict{Int,Int}
 
     Program(str::AbstractString) = begin
-        lines = split(strip(str), "\n")
-        mask = join('X' for _ in 1:36)
-
-        instructions = map(lines) do line
+        instructions = map(split(strip(str), "\n")) do line
             (left, right) = split(line, " = ")
+
             if startswith(left, "mask")
                 MaskReset(right)
             elseif startswith(left, "mem")
@@ -37,8 +35,7 @@ mutable struct Program
             end
         end
 
-        memory = Dict{UInt,Int}()
-        new(mask, instructions, memory)
+        new(join('X' for _ in 1:36), instructions, Dict())
     end
 end
 
@@ -46,30 +43,29 @@ function assignment!(p::Program, ins::Assignment; version=1)
     if version == 1
         val_bits = reverse(bitstring(ins.val))
         mask_bits = reverse(p.mask)
-        new_bits = map(zip(val_bits, mask_bits)) do (bit, mask_bit)
-            mask_bit == 'X' ? bit : mask_bit
-        end
+        new_bits = [m == 'X' ? v : m for (v, m) in zip(val_bits, mask_bits)]
         p.memory[ins.addr] = parse(UInt, reverse(join(new_bits)), base=2)
     else
         addr_bits = reverse(bitstring(ins.addr))
         mask_bits = reverse(p.mask)
+        pairs = collect(zip(addr_bits, mask_bits))
 
         addresses::Vector{UInt} = []
-        (recur_helper(addr, pairs) = begin
-            if isempty(pairs)
+        (recur_helper(addr, i) = begin
+            if i > length(pairs)
                 return push!(addresses, parse(UInt, reverse(join(addr)), base=2))
             end
 
-            (addr_bit, mask_bit) = first(pairs)
+            (addr_bit, mask_bit) = pairs[i]
             if mask_bit == '0'
-                recur_helper([addr; addr_bit], pairs[2:end])
+                recur_helper([addr; addr_bit], i + 1)
             elseif mask_bit == '1'
-                recur_helper([addr; '1'], pairs[2:end])
+                recur_helper([addr; '1'], i + 1)
             else
-                recur_helper([addr; '0'], pairs[2:end])
-                recur_helper([addr; '1'], pairs[2:end])
+                recur_helper([addr; '0'], i + 1)
+                recur_helper([addr; '1'], i + 1)
             end
-        end)([], collect(zip(addr_bits, mask_bits)))
+        end)([], 1)
 
         for addr in addresses
             p.memory[addr] = ins.val
