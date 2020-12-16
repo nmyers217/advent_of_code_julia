@@ -61,7 +61,7 @@ function field_order(d::Document)::Vector{AbstractString}
     col_to_valids::Vector{Tuple{Int,Set{AbstractString}}} = []
     for i in 1:length(d.ticket)
         col = [t[i] for t in [[d.ticket]; d.others]]
-        valid_fields = [field for (field, s) in d.rules if all([n in s for n in col])]
+        valid_fields = [field for (field, s) in d.rules if all(n in s for n in col)]
         push!(col_to_valids, (i, Set(valid_fields)))
     end
 
