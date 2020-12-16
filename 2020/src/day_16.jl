@@ -34,11 +34,11 @@ function error_rate!(d::Document)::Int
     result = 0
     deletions = []
 
-    for (i, t) in enumerate(d.others)
-        for n in t
+    for (i, ticket) in enumerate(d.others)
+        for n in ticket
             valid = false
-            for s in values(d.rules)
-                if n in s
+            for set in values(d.rules)
+                if n in set
                     valid = true
                     break
                 end
