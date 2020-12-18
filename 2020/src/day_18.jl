@@ -25,7 +25,7 @@ end
 function solve()
     input = read("2020/res/day_18.txt", String)
     problems = split(strip(input), "\n")
-    sum(eval_expr.(problems)), sum([eval_expr(p; fix_add=true) for p in problems])
+    sum(eval_expr.(problems)), sum(eval_expr.(problems; fix_add=true))
 end
 
 function run_tests()
