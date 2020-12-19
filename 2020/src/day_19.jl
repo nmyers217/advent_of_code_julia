@@ -27,11 +27,10 @@ function Graph(str::AbstractString)::Graph
     result
 end
 
-function isvalid(msg::AbstractString, g::Graph, rule::Int=0)
+function isvalid(msg::AbstractString, g::Graph, left_to_right=true, rule=0)
     # A recursive helper function
     rh(rule, i=1) = begin
         if i > length(msg)
-            # The message was too short to match
             return true, 0
         end
 
@@ -43,7 +42,12 @@ function isvalid(msg::AbstractString, g::Graph, rule::Int=0)
             return match, match ? 1 : 0
         end
 
-        for child in [node.left, node.right]
+        children = if left_to_right
+            [node.left, node.right]
+        else
+            [node.right, node.left]
+        end
+        for child in children
             if isnothing(child)
                 continue
             end
@@ -51,13 +55,7 @@ function isvalid(msg::AbstractString, g::Graph, rule::Int=0)
             is_match = true
             Δi = 0
             for id in child
-                next_i = i + Δi
-
-                # if next_i > length(msg)
-                #     return is_match, is_match ? i : 0
-                # end
-
-                (m, Δ) = rh(id, next_i)
+                (m, Δ) = rh(id, i + Δi)
                 Δi += Δ
                 if !m 
                     is_match = false
@@ -80,57 +78,6 @@ end
 
 function solve()
     input = read("2020/res/day_19.txt", String)
-
-    test_input = """
-    42: 9 14 | 10 1
-    9: 14 27 | 1 26
-    10: 23 14 | 28 1
-    1: "a"
-    11: 42 31
-    5: 1 14 | 15 1
-    19: 14 1 | 14 14
-    12: 24 14 | 19 1
-    16: 15 1 | 14 14
-    31: 14 17 | 1 13
-    6: 14 14 | 1 14
-    2: 1 24 | 14 4
-    0: 8 11
-    13: 14 3 | 1 12
-    15: 1 | 14
-    17: 14 2 | 1 7
-    23: 25 1 | 22 14
-    28: 16 1
-    4: 1 1
-    20: 14 14 | 1 15
-    3: 5 14 | 16 1
-    27: 1 6 | 14 18
-    14: "b"
-    21: 14 1 | 1 14
-    25: 1 1 | 1 14
-    22: 14 14
-    8: 42
-    26: 14 22 | 1 20
-    18: 15 15
-    7: 14 5 | 1 21
-    24: 14 1
-
-    abbbbbabbbaaaababbaabbbbabababbbabbbbbbabaaaa
-    bbabbbbaabaabba
-    babbbbaabbbbbabbbbbbaabaaabaaa
-    aaabbbbbbaaaabaababaabababbabaaabbababababaaa
-    bbbbbbbaaaabbbbaaabbabaaa
-    bbbababbbbaaaaaaaabbababaaababaabab
-    ababaaaaaabaaab
-    ababaaaaabbbaba
-    baabbaaaabbaaaababbaababb
-    abbbbabbbbaaaababbbbbbaaaababb
-    aaaaabbaabaaaaababaa
-    aaaabbaaaabbaaa
-    aaaabbaabbaaaaaaabbbabbbaaabbaabaaa
-    babaaabbbaaabaababbaabababaaab
-    aabbbbbaabbbaaaaaabbbbbababaaaaabbaaabba
-    """
-
     (rules_str, msgs_str) = split(strip(input), "\n\n")
     msgs = split(strip(msgs_str), "\n")
     rules = Graph(rules_str)
@@ -140,29 +87,12 @@ function solve()
     part_two = begin
         rules[8] = Node(nothing, rules[8].left, [42, 8])
         rules[11] = Node(nothing, rules[11].left, [42, 11, 31])
-        count(m -> isvalid(m, rules), msgs)
+        # This is such a god tier hack LMAO
+        lr = count(m -> isvalid(m, rules), msgs)
+        rl = count(m -> isvalid(m, rules, false), msgs)
+        lr - rl
     end
 
-    right_answer = [
-        "bbabbbbaabaabba",
-        "babbbbaabbbbbabbbbbbaabaaabaaa",
-        "aaabbbbbbaaaabaababaabababbabaaabbababababaaa",
-        "bbbbbbbaaaabbbbaaabbabaaa",
-        "bbbababbbbaaaaaaaabbababaaababaabab",
-        "ababaaaaaabaaab",
-        "ababaaaaabbbaba",
-        "baabbaaaabbaaaababbaababb",
-        "abbbbabbbbaaaababbbbbbaaaababb",
-        "aaaaabbaabaaaaababaa",
-        "aaaabbaabbaaaaaaabbbabbbaaabbaabaaa",
-        "aabbbbbaabbbaaaaaabbbbbababaaaaabbaaabba"
-    ]
-
-    wtf = "aaaabbaaaabbaaa"
-
-    symdiff(part_two, right_answer)
-
-    # isvalid(wtf, rules)
     part_one, part_two
 end
 
