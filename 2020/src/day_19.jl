@@ -88,7 +88,7 @@ function solve()
         rules[8] = Node(nothing, rules[8].left, [42, 8])
         rules[11] = Node(nothing, rules[11].left, [42, 11, 31])
         # I was having some false positives bloating my answer
-        # no big deal, surely they won't show twiceup if i
+        # no big deal, surely they won't show up twice if i
         # do the recursion in the opposite order
         # This is such a god tier hack LMAO
         lr = count(m -> isvalid(m, rules), msgs)
