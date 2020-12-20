@@ -17,8 +17,7 @@ struct Tile
 end
 
 rotate(t::Tile)::Tile = Tile(t.id, rotr90(t.data))
-flipy(t::Tile)::Tile = Tile(t.id, reverse(t.data, dims=2))
-flipx(t::Tile)::Tile = Tile(t.id, reverse(t.data, dims=1))
+flip(t::Tile)::Tile = Tile(t.id, reverse(t.data, dims=1))
 borders(t::Tile)::Dict{Symbol,Vector{Char}} = begin
     result = Dict()
     result[:up] = t.data[1, :]
@@ -59,7 +58,7 @@ function TileGraph(str::AbstractString)::TileGraph
             t2 = node2.val
             for rot in 1:4
                 t2 = rotate(t2)
-                for t2′ in [t2, flipy(t2), flipx(t2)]
+                for t2′ in [t2, flip(t2)]
                     bs2 = borders(t2′)
 
                     if isnothing(node1.right) && bs1[:right] == bs2[:left]
@@ -108,12 +107,12 @@ function Image(g::TileGraph)::Image
     matrix = nothing
     row_node = topleft
     while true
-        row = flipx(row_node.val).data[2:end - 1, 2:end - 1]
+        row = flip(row_node.val).data[2:end - 1, 2:end - 1]
 
         col_node = row_node
         while !isnothing(col_node.right)
             col_node = g[col_node.right]
-            row = hcat(row, flipx(col_node.val).data[2:end - 1, 2:end - 1])
+            row = hcat(row, flip(col_node.val).data[2:end - 1, 2:end - 1])
         end
 
         matrix = isnothing(matrix) ? row : vcat(matrix, row)
