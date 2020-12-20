@@ -1,7 +1,3 @@
-import Base.show
-
-const TILE_SIZE = 10
-
 struct Tile
     id::Int
     data::Array{Char,2}
@@ -10,25 +6,13 @@ struct Tile
     Tile(str::AbstractString) = begin
         lines = split(strip(str), "\n")
         id = parse(Int, first(match(r"Tile (\d+):", lines[1]).captures))
-        data = fill('.', (TILE_SIZE, TILE_SIZE))
+        data = fill('.', (10, 10))
         for (y, row) in enumerate(lines[2:end])
             for (x, str) in enumerate(split(row, ""))
                 data[y, x] = str[1]
             end
         end
         new(id, data)
-    end
-end
-
-function show(io::IO, t::Tile, id=false)
-    if id
-        println(io, "Tile $(t.id):")
-    end
-    for y in axes(t.data, 1)
-        for x in axes(t.data, 2)
-            print(io, t.data[y, x])
-        end
-        print(io, "\n")
     end
 end
 
@@ -107,117 +91,108 @@ function TileGraph(str::AbstractString)::TileGraph
     result
 end
 
+const Image = Array{Char,2}
+
+function Image(g::TileGraph)::Image
+    topleft = begin
+        id = nothing
+        for (k, v) in g
+            if isnothing(v.left) && isnothing(v.down)
+                id = k
+                break
+            end
+        end
+        g[id]
+    end
+
+    matrix = nothing
+    row_node = topleft
+    while true
+        row = flipx(row_node.val).data[2:end - 1, 2:end - 1]
+
+        col_node = row_node
+        while !isnothing(col_node.right)
+            col_node = g[col_node.right]
+            row = hcat(row, flipx(col_node.val).data[2:end - 1, 2:end - 1])
+        end
+
+        matrix = isnothing(matrix) ? row : vcat(matrix, row)
+
+        if isnothing(row_node.up)
+            break
+        end
+        row_node = g[row_node.up]
+    end
+
+    matrix
+end
+
+function find_monsters(i::Image)::Set{Vector{Int}}
+    # A series of vectors that will trace from one part of a monster to the next
+    monster_deltas = [
+        # Tail
+        [0, 0], [1, 1],
+        # Hump 1
+        [3, 0], [1, -1], [1, 0], [1, 1],
+        # Hump 2
+        [3, 0], [1, -1], [1, 0], [1, 1],
+        # Head
+        [3, 0], [1, -1], [1, -1], [0, 1], [1, 0]
+    ]
+
+    result = Set()
+    (rows, cols) = size(i, 1), size(i, 2)
+    for y in 1:rows
+        for x in 1:cols
+            if i[y, x] == '.'
+                continue
+            end
+
+            points = []
+            cur = [x, y]
+            for delta in monster_deltas
+                cur += delta
+                (Δx, Δy) = cur
+                if !(1 <= Δx <= cols && 1 <= Δy <= rows) || i[Δy, Δx] != '#'
+                    break
+                end
+                push!(points, cur)
+            end
+
+            if length(points) == length(monster_deltas)
+                push!(result, points...)
+            end
+        end
+    end
+    result
+end
+
+function find_roughness(image::Image)
+    result = 0
+    i = image
+
+    for _ in 1:4
+        i = rotr90(i)
+        check_these = [i, reverse(i, dims=1), reverse(i, dims=2)]
+
+        for c in check_these
+            monsters = find_monsters(c)
+            if length(monsters) > 0
+                result = count(==('#'), i) - length(monsters)
+                break
+            end
+        end
+
+        if result > 0
+            break
+        end
+    end
+
+    result
+end
+
 function solve()
     input = read("2020/res/day_20.txt", String)
-    test_input = """
-    Tile 2311:
-    ..##.#..#.
-    ##..#.....
-    #...##..#.
-    ####.#...#
-    ##.##.###.
-    ##...#.###
-    .#.#.#..##
-    ..#....#..
-    ###...#.#.
-    ..###..###
-
-    Tile 1951:
-    #.##...##.
-    #.####...#
-    .....#..##
-    #...######
-    .##.#....#
-    .###.#####
-    ###.##.##.
-    .###....#.
-    ..#.#..#.#
-    #...##.#..
-
-    Tile 1171:
-    ####...##.
-    #..##.#..#
-    ##.#..#.#.
-    .###.####.
-    ..###.####
-    .##....##.
-    .#...####.
-    #.##.####.
-    ####..#...
-    .....##...
-
-    Tile 1427:
-    ###.##.#..
-    .#..#.##..
-    .#.##.#..#
-    #.#.#.##.#
-    ....#...##
-    ...##..##.
-    ...#.#####
-    .#.####.#.
-    ..#..###.#
-    ..##.#..#.
-
-    Tile 1489:
-    ##.#.#....
-    ..##...#..
-    .##..##...
-    ..#...#...
-    #####...#.
-    #..#.#.#.#
-    ...#.#.#..
-    ##.#...##.
-    ..##.##.##
-    ###.##.#..
-
-    Tile 2473:
-    #....####.
-    #..#.##...
-    #.##..#...
-    ######.#.#
-    .#...#.#.#
-    .#########
-    .###.#..#.
-    ########.#
-    ##...##.#.
-    ..###.#.#.
-
-    Tile 2971:
-    ..#.#....#
-    #...###...
-    #.#.###...
-    ##.##..#..
-    .#####..##
-    .#..####.#
-    #..#.#..#.
-    ..####.###
-    ..#.#.###.
-    ...#.#.#.#
-
-    Tile 2729:
-    ...#.#.#.#
-    ####.#....
-    ..#.#.....
-    ....#..#.#
-    .##..##.#.
-    .#.####...
-    ####.#.#..
-    ##.####...
-    ##..#.##..
-    #.##...##.
-
-    Tile 3079:
-    #.#.#####.
-    .#..######
-    ..#.......
-    ######....
-    ####.#..#.
-    .#...#.##.
-    #.#####.##
-    ..#.###...
-    ..#.......
-    ..#.###...
-    """
     graph = TileGraph(input)
     part_one = begin
         corners = [
@@ -226,7 +201,8 @@ function solve()
         ]
         prod(corners)
     end
-    graph
+    part_two = find_roughness(Image(graph))
+    part_one, part_two
 end
 
 @time solve()
