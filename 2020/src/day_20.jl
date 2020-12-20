@@ -168,7 +168,7 @@ function find_roughness(image::Image)
     i = image
     for _ in 1:4
         i = rotr90(i)
-        for c in [i, reverse(i, dims=1), reverse(i, dims=2)]
+        for c in [i, reverse(i, dims=1)]
             monsters = find_monsters(c)
             if length(monsters) > 0
                 return count(==('#'), i) - length(monsters)
