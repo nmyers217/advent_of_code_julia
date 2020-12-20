@@ -142,53 +142,40 @@ function find_monsters(i::Image)::Set{Vector{Int}}
 
     result = Set()
     (rows, cols) = size(i, 1), size(i, 2)
-    for y in 1:rows
-        for x in 1:cols
-            if i[y, x] == '.'
-                continue
-            end
+    for y in 1:rows, x in 1:cols
+        if i[y, x] == '.'
+            continue
+        end
 
-            points = []
-            cur = [x, y]
-            for delta in monster_deltas
-                cur += delta
-                (Δx, Δy) = cur
-                if !(1 <= Δx <= cols && 1 <= Δy <= rows) || i[Δy, Δx] != '#'
-                    break
-                end
-                push!(points, cur)
+        points = []
+        cur = [x, y]
+        for delta in monster_deltas
+            cur += delta
+            (Δx, Δy) = cur
+            if !(1 <= Δx <= cols && 1 <= Δy <= rows) || i[Δy, Δx] != '#'
+                break
             end
+            push!(points, cur)
+        end
 
-            if length(points) == length(monster_deltas)
-                push!(result, points...)
-            end
+        if length(points) == length(monster_deltas)
+            push!(result, points...)
         end
     end
     result
 end
 
 function find_roughness(image::Image)
-    result = 0
     i = image
-
     for _ in 1:4
         i = rotr90(i)
-        check_these = [i, reverse(i, dims=1), reverse(i, dims=2)]
-
-        for c in check_these
+        for c in [i, reverse(i, dims=1), reverse(i, dims=2)]
             monsters = find_monsters(c)
             if length(monsters) > 0
-                result = count(==('#'), i) - length(monsters)
-                break
+                return count(==('#'), i) - length(monsters)
             end
         end
-
-        if result > 0
-            break
-        end
     end
-
-    result
 end
 
 function solve()
