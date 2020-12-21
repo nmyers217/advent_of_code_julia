@@ -93,19 +93,10 @@ end
 const Image = Array{Char,2}
 
 function Image(g::TileGraph)::Image
-    topleft = begin
-        id = nothing
-        for (k, v) in g
-            if isnothing(v.left) && isnothing(v.down)
-                id = k
-                break
-            end
-        end
-        g[id]
-    end
+    topleft = first(g[k] for (k, v) in g if isnothing(v.left) && isnothing(v.down))
+    row_node = topleft
 
     matrix = nothing
-    row_node = topleft
     while true
         row = flip(row_node.val).data[2:end - 1, 2:end - 1]
 
@@ -122,7 +113,6 @@ function Image(g::TileGraph)::Image
         end
         row_node = g[row_node.up]
     end
-
     matrix
 end
 
