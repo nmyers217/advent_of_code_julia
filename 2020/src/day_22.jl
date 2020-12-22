@@ -5,22 +5,17 @@ mutable struct Game
 
     Game(players::Vector{Vector{Int}}) = new(0, deepcopy(players), Set())
     Game(str::AbstractString) = begin
-        players = []
-        for s in split(strip(str), "\n\n")
-            push!(players, parse.(Int, split(s, "\n")[2:end]))
+        players = map(split(strip(str), "\n\n")) do s
+            parse.(Int, split(s, "\n")[2:end])
         end
         new(0, players, Set())
     end
 end
 
 function play!(g::Game)::Game
-    while true
-        if any(isempty, g.players)
-            return g
-        end
+    while !any(isempty, g.players)
         g.round += 1
-        p1 = popfirst!(g.players[1])
-        p2 = popfirst!(g.players[2])
+        (p1, p2) = popfirst!.(g.players)
         winner = p1 > p2 ? g.players[1] : g.players[2]
         append!(winner, p1 > p2 ? [p1, p2] : [p2, p1])
     end
@@ -29,25 +24,18 @@ end
 
 function play_recurse!(g::Game)::Int
     while true
-        # @show g
         if isempty(g.players[1])
             return 2
-        elseif isempty(g.players[2])
+        elseif isempty(g.players[2]) || g.players in g.past_rounds
             return 1
         end
 
-        if g.players in g.past_rounds
-            return 1
-        end
         g.round += 1
         push!(g.past_rounds, deepcopy(g.players))
-        p1 = popfirst!(g.players[1])
-        p2 = popfirst!(g.players[2])
+        (p1, p2) = popfirst!.(g.players)
 
         if length(g.players[1]) >= p1 && length(g.players[2]) >= p2
-            # println("Recursing at round: $(g.round)\n")
             winner = play_recurse!(Game([g.players[1][1:p1], g.players[2][1:p2]]))
-            # println("Player $winner won the recursion!\n")
             append!(g.players[winner], winner == 1 ? [p1, p2] : [p2, p1])
         else
             winner = p1 > p2 ? g.players[1] : g.players[2]
