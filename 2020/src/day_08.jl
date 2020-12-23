@@ -72,7 +72,7 @@ function fix_program(bp::BootProgram)
 end
 
 function solve()
-    input = read("2020/res/day_08.txt", String)
+    input = read(joinpath(@__DIR__, "../res", replace(basename(@__FILE__), "jl" => "txt")), String)
     part_one = begin
         bp = BootProgram(input)
         run!(bp)

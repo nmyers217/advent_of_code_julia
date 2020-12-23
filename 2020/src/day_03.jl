@@ -26,7 +26,7 @@ function tree_count(rows, slope::Tuple{Int,Int})
 end
 
 function solve()
-    input = read("2020/res/day_03.txt", String)
+    input = read(joinpath(@__DIR__, "../res", replace(basename(@__FILE__), "jl" => "txt")), String)
     rows = parse_rows(input)
 
     part_one = tree_count(rows, (3, 1))

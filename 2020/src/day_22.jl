@@ -54,7 +54,7 @@ function score(g::Game, winner=-1)
 end
 
 function solve()
-    input = read("2020/res/day_22.txt", String)
+    input = read(joinpath(@__DIR__, "../res", replace(basename(@__FILE__), "jl" => "txt")), String)
     part_one = input |> Game |> play! |> score
     part_two = begin
         g = Game(input)

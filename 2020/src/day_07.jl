@@ -15,7 +15,7 @@ function parse_line(line::AbstractString)
     (entry, deps)
 end
 
-function parse_input(input::AbstractString) 
+function parse_input(input::AbstractString)
     result = Dict()
     for (entry, deps) in [parse_line(line) for line in split(strip(input), "\n")]
         result[entry] = Dict()
@@ -60,7 +60,7 @@ function traverse(bag_graph::Dict{Any}, start::String="shiny gold")
 end
 
 function solve()
-    input = read("2020/res/day_07.txt", String)
+    input = read(joinpath(@__DIR__, "../res", replace(basename(@__FILE__), "jl" => "txt")), String)
     graph = parse_input(input)
     part_one = length(keys(bfs(graph)))
     part_two = traverse(graph)

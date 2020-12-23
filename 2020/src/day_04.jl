@@ -50,7 +50,7 @@ function isvalid_strict(passport::Passport)
 end
 
 function solve()
-    input = read("2020/res/day_04.txt", String)
+    input = read(joinpath(@__DIR__, "../res", replace(basename(@__FILE__), "jl" => "txt")), String)
     passports = parse_input(input)
     (count(isvalid, passports), count(isvalid_strict, passports))
 end

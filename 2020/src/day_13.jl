@@ -4,7 +4,7 @@ struct Schedule
     offsets::Vector{Int}
 
     Schedule(str::AbstractString) = begin
-        (start_str, busses_str) = split(strip(str), "\n") 
+        (start_str, busses_str) = split(strip(str), "\n")
         ids = split(busses_str, ",")
         busses = [parse(Int, c) for c in ids if c != "x"]
         offsets = [i - 1 for (i, c) in enumerate(ids) if c != "x"]
@@ -13,7 +13,7 @@ struct Schedule
 end
 
 function solve()
-    input = read("2020/res/day_13.txt", String)
+    input = read(joinpath(@__DIR__, "../res", replace(basename(@__FILE__), "jl" => "txt")), String)
     s = Schedule(input)
 
     part_one = begin

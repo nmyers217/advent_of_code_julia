@@ -23,7 +23,7 @@ function eval_expr(str::AbstractString; fix_add=false)
 end
 
 function solve()
-    input = read("2020/res/day_18.txt", String)
+    input = read(joinpath(@__DIR__, "../res", replace(basename(@__FILE__), "jl" => "txt")), String)
     problems = split(strip(input), "\n")
     sum(eval_expr.(problems)), sum(eval_expr.(problems; fix_add=true))
 end
@@ -31,7 +31,7 @@ end
 function run_tests()
     begin
         @test eval_expr("2 * 3 + (4 * 5)") == 26
-        @test eval_expr("5 + (8 * 3 + 9 + 3 * 4 * 3)") == 437 
+        @test eval_expr("5 + (8 * 3 + 9 + 3 * 4 * 3)") == 437
         @test eval_expr("5 * 9 * (7 * 3 * 3 + 9 * 3 + (8 + 6 * 4))") == 12240
         @test eval_expr("((2 + 4 * 9) * (6 + 9 * 8 + 6) + 6) + 2 + 4 * 2") == 13632
     end

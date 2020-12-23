@@ -98,7 +98,7 @@ function field_order(d::Document)::Vector{AbstractString}
 end
 
 function solve()
-    input = read("2020/res/day_16.txt", String)
+    input = read(joinpath(@__DIR__, "../res", replace(basename(@__FILE__), "jl" => "txt")), String)
     d = Document(input)
     part_one = error_rate!(d)
     part_two = prod(

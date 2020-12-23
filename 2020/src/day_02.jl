@@ -23,9 +23,8 @@ function isvalid_new(password::Password)
 end
 
 function solve()
-    input = strip(read("2020/res/day_02.txt", String))
+    input = read(joinpath(@__DIR__, "../res", replace(basename(@__FILE__), "jl" => "txt")), String)
     passwords = [Password(line) for line in split(input, "\n")]
-
     (count(isvalid_old, passwords), count(isvalid_new, passwords))
 end
 

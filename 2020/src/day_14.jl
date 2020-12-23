@@ -92,7 +92,7 @@ function run!(p::Program; version=1)
 end
 
 function solve()
-    input = read("2020/res/day_14.txt", String)
+    input = read(joinpath(@__DIR__, "../res", replace(basename(@__FILE__), "jl" => "txt")), String)
 
     part_one = begin
         prog = Program(input)

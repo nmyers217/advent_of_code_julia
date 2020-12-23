@@ -57,7 +57,7 @@ function isvalid(msg::AbstractString, g::Graph, left_to_right=true, rule=0)
             for id in child
                 (m, Δ) = rh(id, i + Δi)
                 Δi += Δ
-                if !m 
+                if !m
                     is_match = false
                     break
                 end
@@ -77,7 +77,7 @@ function isvalid(msg::AbstractString, g::Graph, left_to_right=true, rule=0)
 end
 
 function solve()
-    input = read("2020/res/day_19.txt", String)
+    input = read(joinpath(@__DIR__, "../res", replace(basename(@__FILE__), "jl" => "txt")), String)
     (rules_str, msgs_str) = split(strip(input), "\n\n")
     msgs = split(strip(msgs_str), "\n")
     rules = Graph(rules_str)

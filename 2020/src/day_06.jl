@@ -1,5 +1,5 @@
 function solve()
-    input = strip(read("2020/res/day_06.txt", String))
+    input = read(joinpath(@__DIR__, "../res", replace(basename(@__FILE__), "jl" => "txt")), String)
     groups = map(split(input, "\n\n")) do group
         [split(person, "") for person in split(group, "\n")]
     end

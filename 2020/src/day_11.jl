@@ -59,11 +59,11 @@ function evolve_conway(sl::SeatLayout, view_distance::Number, tolerance::Int)
         end
         cur = next
     end
-    cur 
+    cur
 end
 
 function solve()
-    input = read("2020/res/day_11.txt", String)
+    input = read(joinpath(@__DIR__, "../res", replace(basename(@__FILE__), "jl" => "txt")), String)
     sl = parse_input(input)
 
     part_one = begin

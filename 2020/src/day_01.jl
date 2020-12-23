@@ -15,7 +15,7 @@ function part_two(entries::Vector{Int})
 end
 
 function solve()
-    input = read("2020/res/day_01.txt", String)
+    input = read(joinpath(@__DIR__, "../res", replace(basename(@__FILE__), "jl" => "txt")), String)
     entries = [parse(Int, x) for x in split(input, "\n")]
     (part_one(entries), part_two(entries))
 end

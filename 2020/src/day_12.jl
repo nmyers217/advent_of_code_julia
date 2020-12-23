@@ -20,7 +20,7 @@ function move!(ship::Ship, direction::Direction; waypoint=false)
         dirs = Dict('N' => [0, -1], 'S' => [0, 1], 'E' => [1, 0], 'W' => [-1, 0])
         v = dirs[t] * amt
 
-        if waypoint 
+        if waypoint
             ship.waypoint += v
         else
             ship.pos += v
@@ -55,7 +55,7 @@ function travel!(ship::Ship, directions::Directions; waypoint=false)
 end
 
 function solve()
-    input = read("2020/res/day_12.txt", String)
+    input = read(joinpath(@__DIR__, "../res", replace(basename(@__FILE__), "jl" => "txt")), String)
     directions = parse_input(input)
     part_one = begin
         ship = Ship()

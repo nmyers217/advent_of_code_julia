@@ -24,7 +24,7 @@ function seat_id(boarding_pass::AbstractString)
 end
 
 function solve()
-    input = read("2020/res/day_05.txt", String)
+    input = read(joinpath(@__DIR__, "../res", replace(basename(@__FILE__), "jl" => "txt")), String)
     all_ids = sort([seat_id(pass) for pass in parse_input(input)])
 
     part_one = maximum(all_ids)

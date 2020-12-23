@@ -48,7 +48,7 @@ function find_contiguous(nums::Vector{Int}, target::Int)
 end
 
 function solve()
-    input = read("2020/res/day_09.txt", String)
+    input = read(joinpath(@__DIR__, "../res", replace(basename(@__FILE__), "jl" => "txt")), String)
     nums = parse_input(input)
     part_one = first_invalid(nums)
     part_two = find_contiguous(nums, part_one)

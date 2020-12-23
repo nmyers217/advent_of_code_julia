@@ -81,7 +81,7 @@ function simulate(c::Conway, cycles::Int; dims=3)::Conway
 end
 
 function solve()
-    input = read("2020/res/day_17.txt", String)
+    input = read(joinpath(@__DIR__, "../res", replace(basename(@__FILE__), "jl" => "txt")), String)
     part_one = length(simulate(Conway(input), 6))
     part_two = length(simulate(Conway(input; dims=4), 6; dims=4))
     part_one, part_two

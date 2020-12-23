@@ -42,10 +42,10 @@ function canonical_boring_problem!(am::AllergenMapping)
 end
 
 function solve()
-    input = read("2020/res/day_21.txt", String)
+    input = read(joinpath(@__DIR__, "../res", replace(basename(@__FILE__), "jl" => "txt")), String)
     list = FoodList(input)
     allergen_mapping = possible_allergens(list)
-    
+
     part_one = begin
         allergens = union(values(allergen_mapping)...)
         sum(count(i -> i ∉ allergens, f.ingredients) for f in list)

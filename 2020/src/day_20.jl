@@ -168,7 +168,7 @@ function find_roughness(image::Image)
 end
 
 function solve()
-    input = read("2020/res/day_20.txt", String)
+    input = read(joinpath(@__DIR__, "../res", replace(basename(@__FILE__), "jl" => "txt")), String)
     graph = TileGraph(input)
     part_one = begin
         corners = [

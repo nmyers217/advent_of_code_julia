@@ -23,7 +23,7 @@ function play(nums::Vector{Int}, max_turn)
 end
 
 function solve()
-    input = read("2020/res/day_15.txt", String)
+    input = read(joinpath(@__DIR__, "../res", replace(basename(@__FILE__), "jl" => "txt")), String)
     nums = [parse(Int, s) for s in split(strip(input), ",")]
     play(nums, 2020), play(nums, 30_000_000)
 end

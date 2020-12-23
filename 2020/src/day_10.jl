@@ -33,7 +33,7 @@ function valid_sets(ratings::Vector{Int}, memo::Any=Dict())
 end
 
 function solve()
-    input = read("2020/res/day_10.txt", String)
+    input = read(joinpath(@__DIR__, "../res", replace(basename(@__FILE__), "jl" => "txt")), String)
     ratings = begin
         list = sort([parse(Int, line) for line in split(strip(input), "\n")])
         [0; list; last(list) + 3]
