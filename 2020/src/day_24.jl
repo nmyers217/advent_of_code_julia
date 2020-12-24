@@ -1,54 +1,23 @@
 
-const Path = AbstractString
-parse_input(str::AbstractString)::Vector{Path} = split(strip(str), "\n")
+const dirs = Dict(
+    "e" => [-1, 1, 0], "se" => [0, 1, -1], "sw" => [1, 0, -1],
+    "w" => [1, -1, 0], "nw" => [0, -1, 1], "ne" => [-1, 0, 1]
+)
 
-function next(p::Path)::Tuple{Union{Symbol,Nothing},Path}
-    if isempty(p)
-        nothing, p
-    else
-        if p[1] in ['s', 'n']
-            Symbol(p[1:2]), p[3:end]
-        else
-            Symbol(p[1:1]), p[2:end]
-        end
-    end
-end
-
-const dirs = [:e, :se, :sw, :w, :nw, :ne]
-const neighbors = [
-    [-1, 1, 0],
-    [0, 1, -1],
-    [1, 0, -1],
-    [1, -1, 0],
-    [0, -1, 1],
-    [-1, 0, 1]
-]
-function delta(dir::Symbol)::Vector{Int}
-    Dict(d => vec for (d, vec) in zip(dirs, neighbors))[dir]
+const Path = Vector{Vector{Int}}
+function parse_input(str::AbstractString)::Vector{Path}
+    lines = split(strip(str), "\n")
+    matches = (collect ∘  eachmatch).(r"e|w|ne|nw|se|sw", lines)
+    [(rm -> dirs[rm.match]).(line) for line in matches]
 end
 
 const Grid = Dict{Vector{Int},Symbol}
-
 function initial_pattern(paths::Vector{Path})::Grid
     points = Dict()
-
-    for p in paths
-        cur_loc, cur_path = [0, 0, 0], p
-
-        while !isempty(cur_path)
-            dir, rest = next(cur_path)
-            cur_loc += delta(dir)
-            cur_path = rest
-        end
-
-        if haskey(points, cur_loc)
-            cur_color = points[cur_loc]
-            points[cur_loc] = cur_color == :white ? :black : :white
-        else
-            points[cur_loc] = :black
-        end
+    for point in [reduce(+, path, init=[0,0,0]) for path in paths]
+        color = get!(points, point, :white)
+        points[point] = color == :white ? :black : :white
     end
-
     points
 end
 
@@ -59,26 +28,22 @@ function hexagonal_conway(points::Grid, generations=100)::Grid
     for _ in 1:generations
         next = deepcopy(cur)
 
-        # We will need to process points that contain a black tile
-        queue = Set(p for (p, c) in cur if c == :black)
-        for p in queue
-            # We will also process all of their neighbors
-            push!(queue, [p + delta for delta in neighbors]...)
+       # We will need to process points that contain a black tile
+        process_these = Set(p for (p, c) in cur if c == :black)
+        for p in process_these
+           # We will also process all of their neighbors
+            push!(process_these, [p + delta for delta in values(dirs)]...)
         end
 
-        while !isempty(queue)
-            p = pop!(queue)
-            ns = [p + delta for delta in neighbors]
+        for p in process_these
+            ns = [p + delta for delta in values(dirs)]
             blacks = count(n -> haskey(cur, n) && cur[n] == :black, ns)
+            color = get!(cur, p, :white)
 
-            if get!(cur, p, :white) == :black
-                if blacks == 0 || blacks > 2
-                    next[p] = :white
-                end
-            else
-                if blacks == 2
-                    next[p] = :black
-                end
+            if color == :black && (blacks == 0 || blacks > 2)
+                next[p] = :white
+            elseif color == :white && blacks == 2
+                next[p] = :black
             end
         end
 
@@ -92,12 +57,8 @@ function solve()
     input = read(joinpath(@__DIR__, "../res", replace(basename(@__FILE__), "jl" => "txt")), String)
     paths = parse_input(input)
     points = initial_pattern(paths)
-
     part_one = count(==(:black), values(points))
-
-    points = hexagonal_conway(points)
-    part_two = count(==(:black), values(points))
-
+    part_two = count(==(:black), points |> hexagonal_conway |> values)
     part_one, part_two
 end
 
