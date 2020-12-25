@@ -1,4 +1,3 @@
-
 const dirs = Dict(
     "e" => [-1, 1, 0], "se" => [0, 1, -1], "sw" => [1, 0, -1],
     "w" => [1, -1, 0], "nw" => [0, -1, 1], "ne" => [-1, 0, 1]
@@ -20,7 +19,6 @@ function initial_pattern(paths::Vector{Path})::Grid
     end
     points
 end
-
 
 function hexagonal_conway(points::Grid, generations=100)::Grid
     cur = points
