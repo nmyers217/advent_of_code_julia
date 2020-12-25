@@ -16,6 +16,21 @@ function Grid(str::AbstractString)::Grid
     result
 end
 
+function placebots!(grid::Grid)::Grid
+    grid
+    start = findfirst(==('@'), grid)
+    changes = Dict(
+        [-1, -1] => '@', [0, -1] => '#', [1, -1] => '$',
+        [-1, 0] => '#', [0, 0] => '#', [1, 0] => '#',
+        [-1, 1] => '%', [0, 1] => '#', [1, 1] => '&'
+    )
+    for (Δ, c) in changes
+        (x, y) = [start[2], start[1]] + Δ
+        grid[y, x] = c
+    end
+    grid
+end
+
 function bfs(grid::Grid, source::Vector{Int})::Dict{Char,Tuple{Int,Set{Char}}}
     result = Dict()
     visited = Set([source])
@@ -91,9 +106,9 @@ function isless(a::State, b::State)
     end
 end
 
-function dijkstra(graph::Graph, source::Char='@')::Dict{Tuple{Char,Set{Char}},Int}
-    result = Dict((source, Set()) => 0)
-    pq = BinaryHeap(Base.By(first), [(State(), source)])
+function dijkstra(graph::Graph)::Dict{Tuple{Char,Set{Char}},Int}
+    result = Dict(('@', Set()) => 0)
+    pq = BinaryHeap(Base.By(first), [(State(), '@')])
 
     while !isempty(pq)
         cur_state, node = pop!(pq)
@@ -135,18 +150,79 @@ function dijkstra(graph::Graph, source::Char='@')::Dict{Tuple{Char,Set{Char}},In
     Dict((k[1], k[2]) => v for (k, v) in result if k[2] == all_keys)
 end
 
+mutable struct QuadState
+    steps::Vector{Int}
+    keys::Vector{Set{Char}}
+    QuadState() = new([0, 0, 0, 0], [Set(), Set(), Set(), Set()])
+end
+
+steps(qs::QuadState) = sum(qs.steps)
+allkeys(qs::QuadState) = union(qs.keys...)
+
+function isless(a::QuadState, b::QuadState)
+    n = cmp(length(allkeys(a)), length(allkeys(b)))
+    if n == 1
+        true
+    elseif n == 0
+        steps(a) < steps(b)
+    else
+        false
+    end
+end
+
+function quad_dijkstra(graph::Graph)::Dict{Tuple{Vector{Char},Set{Char}},Int}
+    sources = ['@', '$', '%', '&']
+    result = Dict((sources, Set()) => 0)
+    pq = BinaryHeap(Base.By(first), [(QuadState(), sources)])
+
+    while !isempty(pq)
+        cur_state, nodes = pop!(pq)
+
+        if steps(cur_state) > get!(result, (nodes, allkeys(cur_state)), typemax(Int))
+            # Abort because this is a long path
+            continue
+        end
+
+        for (i, node) in enumerate(nodes)
+            for (neighbor, (weight, keys_needed)) in graph[node]
+                neighbor, weight, keys_needed
+
+                if !issubset(keys_needed, allkeys(cur_state))
+                    # We don't have the keys to traverse here
+                    continue
+                end
+
+                if lowercase(neighbor) in allkeys(cur_state)
+                    # Don't visit uneccesary nodes
+                    continue
+                end
+
+                next_state = deepcopy(cur_state)
+                next_state.steps[i] += weight
+                if neighbor in 'a':'z'
+                    # We collected a key
+                    push!(next_state.keys[i], neighbor)
+                end
+
+                # Only proceed if this path is better
+                newnodes = replace(nodes, node => neighbor)
+                if steps(next_state) < get!(result, (newnodes, allkeys(next_state)), typemax(Int))
+                    result[(newnodes, allkeys(next_state))] = steps(next_state)
+                    push!(pq, (next_state, newnodes))
+                end
+            end
+        end
+    end
+
+    all = Set(k for k in keys(graph) if k in 'a':'z')
+    Dict(k => v for (k, v) in result if k[2] == all)
+end
+
 function solve()
     input = read(joinpath(@__DIR__, "../res", replace(basename(@__FILE__), "jl" => "txt")), String)
-    test_input = """
-########################
-#@..............ac.GI.b#
-###d#e#f################
-###A#B#C################
-###g#h#i################
-########################
-"""
-
-    input |> Grid |> Graph |> dijkstra |> values |> minimum
+    part_one = input |> Grid |> Graph |> dijkstra |> values |> minimum
+    part_two = input |> Grid |> placebots! |> Graph |> quad_dijkstra |> values |> minimum
+    part_one, part_two
 end
 
 @time @show solve()
