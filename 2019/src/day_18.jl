@@ -2,8 +2,36 @@
 using Pkg
 Pkg.add("DataStructures")
 using DataStructures
+import Base.isless
 
 const Grid = Array{Char,2}
+const Graph = Dict{Char,Dict{Char,Tuple{Int,Set{Char}}}}
+
+struct SearchState
+    steps::Vector{Int}
+    keys::Vector{Set{Char}}
+    totalsteps::Int
+    totalkeys::Set{Char}
+
+    SearchState(i::Int) = new([0 for _ in 1:i], [Set() for _ in 1:i], 0, Set())
+    SearchState(steps::Vector{Int}, keys::Vector{Set{Char}}) = begin
+        new(steps, keys, sum(steps), union(keys...))
+    end
+    SearchState(s::SearchState, weight::Int, key::Union{Char,Nothing}, i::Int) = begin
+        steps = copy(s.steps)
+        keys = deepcopy(s.keys)
+        steps[i] += weight
+        if !isnothing(key)
+            push!(keys[i], key)
+        end
+        SearchState(steps, keys)
+    end
+end
+
+g(s::SearchState) = s.totalsteps
+h(s::SearchState) = s.totalsteps - length(s.totalkeys) * 10
+fscore(s::SearchState) = g(s) + h(s)
+
 function Grid(str::AbstractString)::Grid
     lines = split(strip(str), "\n")
     rows, cols = length(lines), length(first(lines))
@@ -76,7 +104,6 @@ function bfs(grid::Grid, source::Vector{Int})::Dict{Char,Tuple{Int,Set{Char}}}
     result
 end
 
-const Graph = Dict{Char,Dict{Char,Tuple{Int,Set{Char}}}}
 function Graph(grid::Grid)::Graph
     result::Graph = Dict()
     for y in axes(grid, 1), x in axes(grid, 2)
@@ -88,140 +115,62 @@ function Graph(grid::Grid)::Graph
     result
 end
 
-mutable struct State
-    steps::Int
-    keys::Set{Char}
-    State() = new(0, Set())
-end
-
-import Base.isless
-function isless(a::State, b::State)
-    n = cmp(length(a.keys), length(b.keys))
-    if n == 1
-        true
-    elseif n == 0
-        a.steps < b.steps
-    else
-        false
-    end
-end
-
-function dijkstra(graph::Graph)::Dict{Tuple{Char,Set{Char}},Int}
-    result = Dict(('@', Set()) => 0)
-    pq = BinaryHeap(Base.By(first), [(State(), '@')])
-
-    while !isempty(pq)
-        cur_state, node = pop!(pq)
-
-        if cur_state.steps > get!(result, (node, cur_state.keys), typemax(Int))
-            # Abort because this is a long path
-            continue
-        end
-
-        for (neighbor, (weight, keys_needed)) in graph[node]
-            neighbor, weight, keys_needed
-
-            if !issubset(keys_needed, cur_state.keys)
-                # We don't have the keys to traverse here
-                continue
-            end
-
-            if lowercase(neighbor) in cur_state.keys
-                # Don't visit uneccesary nodes
-                continue
-            end
-
-            next_state = deepcopy(cur_state)
-            next_state.steps += weight
-            if neighbor in 'a':'z'
-                # We collected a key
-                push!(next_state.keys, neighbor)
-            end
-
-            # Only proceed if this path is better
-            if next_state.steps < get!(result, (neighbor, next_state.keys), typemax(Int))
-                result[(neighbor, next_state.keys)] = next_state.steps
-                push!(pq, (next_state, neighbor))
-            end
-        end
-    end
-
-    all_keys = Set(k for k in keys(graph) if k in 'a':'z')
-    Dict((k[1], k[2]) => v for (k, v) in result if k[2] == all_keys)
-end
-
-mutable struct QuadState
-    steps::Vector{Int}
-    keys::Vector{Set{Char}}
-    QuadState() = new([0, 0, 0, 0], [Set(), Set(), Set(), Set()])
-end
-
-steps(qs::QuadState) = sum(qs.steps)
-allkeys(qs::QuadState) = union(qs.keys...)
-
-function isless(a::QuadState, b::QuadState)
-    n = cmp(length(allkeys(a)), length(allkeys(b)))
-    if n == 1
-        true
-    elseif n == 0
-        steps(a) < steps(b)
-    else
-        false
-    end
-end
-
-function quad_dijkstra(graph::Graph)::Dict{Tuple{Vector{Char},Set{Char}},Int}
-    sources = ['@', '$', '%', '&']
+function astar(graph::Graph, sources::Vector{Char})
+    all = Set(k for k in keys(graph) if k in 'a':'z')
     result = Dict((sources, Set()) => 0)
-    pq = BinaryHeap(Base.By(first), [(QuadState(), sources)])
+    pq = PriorityQueue{Tuple{SearchState,Vector{Char}},Int}()
+    start_state = SearchState(length(sources))
+    enqueue!(pq, (start_state, sources), fscore(start_state))
 
     while !isempty(pq)
-        cur_state, nodes = pop!(pq)
+        cur_state, nodes = dequeue!(pq)
 
-        if steps(cur_state) > get!(result, (nodes, allkeys(cur_state)), typemax(Int))
+        if cur_state.totalkeys == all
+            # We found the destination
+            return cur_state.totalsteps
+        end
+
+        if cur_state.totalsteps > get!(result, (nodes, cur_state.totalkeys), typemax(Int))
             # Abort because this is a long path
             continue
         end
 
         for (i, node) in enumerate(nodes)
             for (neighbor, (weight, keys_needed)) in graph[node]
-                neighbor, weight, keys_needed
-
-                if !issubset(keys_needed, allkeys(cur_state))
+                if !issubset(keys_needed, cur_state.totalkeys)
                     # We don't have the keys to traverse here
                     continue
                 end
 
-                if lowercase(neighbor) in allkeys(cur_state)
+                if lowercase(neighbor) in cur_state.totalkeys
                     # Don't visit uneccesary nodes
                     continue
                 end
 
-                next_state = deepcopy(cur_state)
-                next_state.steps[i] += weight
-                if neighbor in 'a':'z'
-                    # We collected a key
-                    push!(next_state.keys[i], neighbor)
-                end
+                pickedup = neighbor in 'a':'z' ? neighbor : nothing
+                next_state = SearchState(cur_state, weight, pickedup, i)
 
                 # Only proceed if this path is better
                 newnodes = replace(nodes, node => neighbor)
-                if steps(next_state) < get!(result, (newnodes, allkeys(next_state)), typemax(Int))
-                    result[(newnodes, allkeys(next_state))] = steps(next_state)
-                    push!(pq, (next_state, newnodes))
+                if next_state.totalsteps < get!(result, (newnodes, next_state.totalkeys), typemax(Int))
+                    result[(newnodes, next_state.totalkeys)] = next_state.totalsteps
+                    enqueue!(pq, (next_state, newnodes), fscore(next_state))
                 end
             end
         end
     end
-
-    all = Set(k for k in keys(graph) if k in 'a':'z')
-    Dict(k => v for (k, v) in result if k[2] == all)
 end
 
 function solve()
     input = read(joinpath(@__DIR__, "../res", replace(basename(@__FILE__), "jl" => "txt")), String)
-    part_one = input |> Grid |> Graph |> dijkstra |> values |> minimum
-    part_two = input |> Grid |> placebots! |> Graph |> quad_dijkstra |> values |> minimum
+    part_one = begin
+        g = input |> Grid |> Graph
+        astar(g, ['@'])
+    end
+    part_two = begin
+        g = input |> Grid |> placebots! |> Graph
+        astar(g, ['@', '$', '%', '&'])
+    end
     part_one, part_two
 end
 
