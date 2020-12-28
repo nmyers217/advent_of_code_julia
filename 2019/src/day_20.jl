@@ -1,26 +1,3 @@
-input = read(joinpath(@__DIR__, "../res", replace(basename(@__FILE__), "jl" => "txt")), String)
-test_input = """
-         A
-         A
-  #######.#########
-  #######.........#
-  #######.#######.#
-  #######.#######.#
-  #######.#######.#
-  #####  B    ###.#
-BC...##  C    ###.#
-  ##.##       ###.#
-  ##...DE  F  ###.#
-  #####    G  ###.#
-  #########.#####.#
-DE..#######...###.#
-  #.#########.###.#
-FG..#########.....#
-  ###########.#####
-             Z
-             Z
-"""
-
 const dirs = [CartesianIndex(y, x) for (x, y) in [[0, -1], [1, 0], [0, 1], [-1, 0]]]
 const Grid = Array{Char,2}
 const PortalCache = Dict{Set{Char},Dict{CartesianIndex{2},Symbol}}
@@ -166,6 +143,7 @@ function dimensional_bfs(grid::Grid, pc::PortalCache)
 end
 
 function solve()
+    input = read(joinpath(@__DIR__, "../res", replace(basename(@__FILE__), "jl" => "txt")), String)
     grid = Grid(input)
     portalcache = PortalCache(grid)
     bfs(grid, portalcache), dimensional_bfs(grid, portalcache)
