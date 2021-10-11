@@ -1,20 +1,20 @@
 function validphrase(phrase)
-  seen = Set()
-  for word in split(phrase, " ")
-    if word in seen return false end
-    push!(seen, word)
-  end
-  true
+    seen = Set()
+    for word in split(phrase, " ")
+        if word in seen return false end
+        push!(seen, word)
+    end
+    true
 end
 
 function morevalidphrase(phrase)
-  seen = Set()
-  for word in split(phrase, " ")
-    chars = Set(split(word, ""))
-    if chars in seen return false end
-    push!(seen, chars)
-  end
-  true
+    seen = Set()
+    for word in split(phrase, " ")
+        chars = Set(split(word, ""))
+        if chars in seen return false end
+        push!(seen, chars)
+    end
+    true
 end
 
 function solve()
