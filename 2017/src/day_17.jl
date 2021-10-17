@@ -2,35 +2,31 @@ function solve()
     input = read(joinpath(@__DIR__, "../res", replace(basename(@__FILE__), "jl" => "txt")), String)
     skip = parse(Int, input)
 
-    # NOTE: circshift goes in the opposite direction you would think, so this array is backwards
-    arr = [0]
-
-    findvalafter(target) = begin
-        for (i, n) in enumerate(arr)
-            if n == target
-                return arr[mod1(i - 1, length(arr))]
-            end
-        end
-    end
-
     partone = begin
+        # NOTE: circshift goes in the opposite direction you would think, so this array is backwards
+        arr = [0]
         for n in 1:2018
             arr = circshift(arr, skip + 1)
             push!(arr, n)
         end
-        findvalafter(2017)
+
+        after2017 = 0
+        for (i, n) in enumerate(arr)
+            if n == 2017
+                after2017 = arr[mod1(i - 1, length(arr))]
+                break
+            end
+        end
+        after2017
     end
 
     parttwo = begin
-        for n in 2019:50_000_000
-            println(n)
-            # if n % 100_000 == 0
-            #     println(n)
-            # end
-            arr = circshift(arr, skip + 1)
-            push!(arr, n)
+        pos, afterzero = 0, -1
+        for n in 1:50_000_000
+            pos = (pos + skip) % n + 1
+            if pos == 1; afterzero = n end
         end
-        findvalafter(0)
+        afterzero
     end
 
     partone, parttwo
