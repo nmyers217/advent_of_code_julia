@@ -5,7 +5,6 @@ mutable struct Tablet
     stdout
     ip
     ishalted
-    amountsent
     recieved
     Tablet(input) = begin
         prog = map(split(strip(input), "\n")) do line
@@ -14,32 +13,31 @@ mutable struct Tablet
             if length(rest) === 1; rest = [rest; nothing] end
             (op, rest...)
         end
-        new(prog, Dict(), [], [], 1, false, 0, [])
+        new(prog, Dict(), [], [], 1, false, [])
     end
 end
 
-function advance!(t::Tablet; duetmode=false)
+function advance!(t::Tablet; duetmode=false, debug=false, verbose=false)
     read!(val) = val in 'a':'z' ? get!(t.registers, val, 0) : val
     write!(reg, val) = t.registers[reg] = val
 
     if t.ishalted && isempty(t.stdin)
-        println("Cant resume")
+        if debug; println("Cant resume...") end
         return
     end
 
     if t.ishalted && !isempty(t.stdin)
-        println("Resuming")
+        if debug; println("Resuming...") end
         t.ishalted = false
     end
 
     while t.ip in 1:length(t.prog)
         (op, x, y) = t.prog[t.ip]
-        println("$op $x $y")
+        if debug && verbose; println("$op $x $y") end
 
         if op == "snd"
-            println("Sending $(read!(x))")
-            push!(t.stdout, read!(x))
-            t.amountsent += 1
+            if debug; println("Sending: $(read!(x))") end
+            pushfirst!(t.stdout, read!(x))
             t.ip += 1
         elseif op == "set"
             write!(x, read!(y))
@@ -54,26 +52,41 @@ function advance!(t::Tablet; duetmode=false)
             write!(x, read!(x) % read!(y))
             t.ip += 1
         elseif op == "rcv"
-            if read!(x) != 0 || duetmode
-                if isempty(t.stdin)
-                    println("Halting")
-                    t.ishalted = true
-                    return
-                end
-                println("Recieving $(t.stdin[1])")
-                push!(t.recieved, popfirst!(t.stdin))
+            if isempty(t.stdin)
+                if debug; println("Halting...") end
+                t.ishalted = true
+                return
             end
+
+            val = pop!(t.stdin)
+
+            if duetmode 
+                write!(x, val)
+                push!(t.recieved, val)
+                if debug; println("Recieved: $val") end
+            else
+                if read!(x) != 0
+                    push!(t.recieved, val)
+                    if debug; println("Recieved $val") end
+                end
+            end
+
             t.ip += 1
         elseif op == "jgz"
             t.ip += read!(x) > 0 ? read!(y) : 1
         else
-            error("Invalid operation $op")
+            error("Invalid operation: $op")
         end
     end
 
-    println("Prog finished")
+    if debug; println("Program Terminated...") end
     t.ishalted = true
-    t.stdin = []
+end
+
+function isterminated(t::Tablet)
+    isdeadlocked = t.ishalted && isempty(t.stdin)
+    outofbounds = t.ip < 1 || t.ip > length(t.prog)
+    isdeadlocked || outofbounds
 end
 
 function solve()
@@ -86,16 +99,6 @@ function solve()
         last(t.recieved)
     end
 
-    # input = """
-    # snd 1
-    # snd 2
-    # snd p
-    # rcv a
-    # rcv b
-    # rcv c
-    # rcv d
-    # """
-
     parttwo = begin
         # Set up two tablets for a duet
         a, b = Tablet(input), Tablet(input)
@@ -104,14 +107,8 @@ function solve()
         a.stdin = b.stdout
         b.stdin = a.stdout
 
-        while any(t -> !t.ishalted || !isempty(t.stdin), [a, b])
-            println()
-            println("====")
-            advance!(a, duetmode=true)
-
-            println()
-            println("****")
-            advance!(b, duetmode=true)
+        while any(t -> !isterminated(t), [a, b])
+            advance!.([a, b], duetmode=true)
         end
 
         length(a.recieved)
