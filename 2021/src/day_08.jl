@@ -3,21 +3,21 @@ function chars(str)
 end
 
 function decode(str, mapping)
-    Set([mapping[c] for c in chars(str)])
+    sevensegnums = Dict(
+        Set(['a', 'b', 'c', 'e', 'f', 'g']) => 0,
+        Set(['c', 'f']) => 1,
+        Set(['a', 'c', 'd', 'e', 'g']) => 2,
+        Set(['a', 'c', 'd', 'f', 'g']) => 3,
+        Set(['b', 'd', 'c', 'f']) => 4,
+        Set(['a', 'b', 'd', 'f', 'g']) => 5,
+        Set(['a', 'b', 'd', 'e', 'f', 'g']) => 6,
+        Set(['a', 'c', 'f']) => 7,
+        Set(['a', 'b', 'c', 'd', 'e', 'f', 'g']) => 8,
+        Set(['a', 'b', 'c', 'd', 'f', 'g']) => 9,
+    )
+    segments = Set([mapping[c] for c in chars(str)])
+    sevensegnums[segments]
 end
-
-sevensegnums = Dict(
-    Set(['a', 'b', 'c', 'e', 'f', 'g']) => 0,
-    Set(['c', 'f']) => 1,
-    Set(['a', 'c', 'd', 'e', 'g']) => 2,
-    Set(['a', 'c', 'd', 'f', 'g']) => 3,
-    Set(['b', 'd', 'c', 'f']) => 4,
-    Set(['a', 'b', 'd', 'f', 'g']) => 5,
-    Set(['a', 'b', 'd', 'e', 'f', 'g']) => 6,
-    Set(['a', 'c', 'f']) => 7,
-    Set(['a', 'b', 'c', 'd', 'e', 'f', 'g']) => 8,
-    Set(['a', 'b', 'c', 'd', 'f', 'g']) => 9,
-)
 
 function decodenote(note)
     left, right = note
@@ -52,8 +52,7 @@ function decodenote(note)
     mapping[symdiff(eight, nine) |> first] = 'e'
     mapping[symdiff(keys(mapping), ['a', 'b', 'c', 'd', 'e', 'f', 'g']) |> first] = 'g'
 
-    (thousands, hundreds, tens, ones) = [sevensegnums[decode(str, mapping)] for str in right]
-    thousands * 1000 + hundreds * 100 + tens * 10 + ones
+    sum([decode(str, mapping) for str in right] .* [1000, 100, 10, 1])
 end
 
 function solve()
