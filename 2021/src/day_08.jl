@@ -24,7 +24,7 @@ function decodenote(note)
     mapping = Dict()
 
     (one, four, seven, eight) = map([2, 4, 3, 7]) do n
-        chars(left[findfirst(str -> length(str) == n, left)])
+        chars(filter(str -> length(str) == n, left) |> first)
     end
 
     # The top segment is in seven but not one
