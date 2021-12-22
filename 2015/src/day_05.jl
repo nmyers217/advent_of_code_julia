@@ -18,4 +18,4 @@ function solve()
     count(isnice, strs), count(isnicer, strs)
 end
 
-@time solve()
+@time @show solve()

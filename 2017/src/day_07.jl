@@ -41,4 +41,4 @@ function solve()
     root, parttwo
 end
 
-@time solve()
+@time @show solve()

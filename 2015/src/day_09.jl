@@ -32,4 +32,4 @@ function solve()
     minimum(tours) - 1, maximum(tours)
 end
 
-@time solve()
+@time @show solve()

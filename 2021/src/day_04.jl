@@ -66,4 +66,4 @@ function solve()
     score(findfirstbingo()...), score(findallbingos()...)
 end
 
-@time solve()
+@time @show solve()

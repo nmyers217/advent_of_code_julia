@@ -23,4 +23,4 @@ function solve()
     count(validphrase, phrases), count(morevalidphrase, phrases)
 end
 
-@time solve()
+@time @show solve()

@@ -38,4 +38,4 @@ function solve()
     solve(filter(isstraightline, lines)), solve(lines)
 end
 
-@time solve()
+@time @show solve()

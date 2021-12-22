@@ -9,4 +9,4 @@ function solve()
     length(combos), count(c -> length(c) == minimum(length, combos), combos)
 end
 
-@time solve()
+@time @show solve()

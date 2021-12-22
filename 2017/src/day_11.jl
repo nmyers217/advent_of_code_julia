@@ -18,4 +18,4 @@ function solve()
     distfromorigin(loc), maximum(distfromorigin.(seen))
 end
 
-@time solve()
+@time @show solve()

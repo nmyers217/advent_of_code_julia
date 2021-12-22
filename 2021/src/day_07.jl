@@ -13,4 +13,4 @@ function solve()
     solve(distance), solve(sumcost)
 end
 
-@time solve()
+@time @show solve()

@@ -55,4 +55,4 @@ function solve()
     grid |> dijkstra, grid |> expand |> dijkstra
 end
 
-@time solve()
+@time @show solve()

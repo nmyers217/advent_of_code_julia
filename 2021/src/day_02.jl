@@ -22,4 +22,4 @@ function solve()
     prod(partone), prod(parttwo)
 end
 
-@time solve()
+@time @show solve()

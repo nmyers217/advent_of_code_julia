@@ -99,4 +99,4 @@ function solve()
     part_one, part_two
 end
 
-@time solve()
+@time @show solve()

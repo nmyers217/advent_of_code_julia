@@ -38,4 +38,4 @@ function solve()
     end
 end
 
-@time solve()
+@time @show solve()

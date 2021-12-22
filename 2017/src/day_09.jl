@@ -36,4 +36,4 @@ function solve()
     total, deleted
 end
 
-@time solve()
+@time @show solve()

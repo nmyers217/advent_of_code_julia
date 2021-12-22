@@ -25,4 +25,4 @@ function solve()
     reducejson(reducer, json, init=0), reducejson(reducer, json, init=0, countred=false)
 end
 
-@time solve()
+@time @show solve()

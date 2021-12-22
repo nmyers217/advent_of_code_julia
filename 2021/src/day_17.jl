@@ -25,4 +25,4 @@ function solve()
     maximum(testvel.(velocityspace)), count(>(-1), testvel.(velocityspace))
 end
 
-@time solve()
+@time @show solve()

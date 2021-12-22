@@ -20,4 +20,4 @@ function solve()
     (part_one(entries), part_two(entries))
 end
 
-@time solve()
+@time @show solve()

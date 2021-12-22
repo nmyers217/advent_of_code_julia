@@ -63,4 +63,4 @@ function solve()
     count(==(1), run!(TuringMachine(input)).tape)
 end
 
-@time solve()
+@time @show solve()

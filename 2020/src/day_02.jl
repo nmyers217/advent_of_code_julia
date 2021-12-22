@@ -28,4 +28,4 @@ function solve()
     (count(isvalid_old, passwords), count(isvalid_new, passwords))
 end
 
-@time solve()
+@time @show solve()

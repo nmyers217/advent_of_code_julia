@@ -41,4 +41,4 @@ function run_tests()
 end
 
 run_tests()
-@time solve()
+@time @show solve()

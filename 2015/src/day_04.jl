@@ -18,4 +18,4 @@ function solve()
     iterateuntil(startswith("00000")), iterateuntil(startswith("000000"))
 end
 
-@time solve()
+@time @show solve()

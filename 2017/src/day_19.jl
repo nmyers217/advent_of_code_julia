@@ -36,4 +36,4 @@ function solve()
     join(order), steps
 end
 
-@time solve()
+@time @show solve()

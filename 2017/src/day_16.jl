@@ -64,4 +64,4 @@ function solve()
     partone, parttwo
 end
 
-@time solve()
+@time @show solve()

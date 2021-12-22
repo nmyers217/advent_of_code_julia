@@ -49,4 +49,4 @@ function solve()
     partone("start", "end"), parttwo("start", "end")
 end
 
-@time solve()
+@time @show solve()

@@ -27,4 +27,4 @@ function solve()
     cycles, cycles - seenon[blocks]
 end
 
-@time solve()
+@time @show solve()

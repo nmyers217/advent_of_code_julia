@@ -36,4 +36,4 @@ function solve()
     maximum(values(registers)), biggest
 end
 
-@time solve()
+@time @show solve()

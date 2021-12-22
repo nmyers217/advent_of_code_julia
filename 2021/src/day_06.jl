@@ -34,4 +34,4 @@ function solve()
     solve(80), solve(256)
 end
 
-@time solve()
+@time @show solve()
